@@ -2,156 +2,74 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 
-//Referred the currency_text_input_formatter package - https://github.com/gtgalone/currency_text_input_formatter
+// class IndianCurrencyFormatter extends TextInputFormatter {
+//   @override
+//   TextEditingValue formatEditUpdate(
+//       TextEditingValue oldValue, TextEditingValue newValue) {
+//     final regEx = RegExp(r'^\d*\.?\d*');
+//     final String? newString = regEx.stringMatch(newValue.text);
+//     print(newString);
 
-class IndianCurrencyFormatter extends TextInputFormatter {
-  num _newNum = 0;
-  String _newString = '';
-  bool _isNegative = false;
-  bool _hasDecimalValue = false;
+//     return newString == newValue.text ? newValue : oldValue;
+//   }
+// }
 
-  void _formatter(String newText) {
-    final NumberFormat format = NumberFormat.currency(
-      locale: 'en_IN',
-      name: 'INR',
-      symbol: '₹',
-      decimalDigits: _hasDecimalValue ? 2 : 0,
-    );
+// void _formatter(String newText) {
+// final NumberFormat format = NumberFormat.simpleCurrency(
+//   locale: 'en_IN',
+//   name: 'INR',
+//   // symbol: '₹',
+//   // // decimalDigits: _hasDecimalValue ? 2 : 0,
+//   decimalDigits: 0,
+// );
 
-    _newNum = num.tryParse(newText) ?? 0;
-    if (format.decimalDigits! > 0) {
-      _newNum /= pow(10, format.decimalDigits!);
-    }
-    _newString = (_isNegative ? '-' : '') + format.format(_newNum).trim();
-  }
+// _newNum = num.tryParse(newText) ?? 0;
 
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    // final bool isInsertedCharacter =
-    //     oldValue.text.length + 1 == newValue.text.length &&
-    //         newValue.text.startsWith(oldValue.text);
-    final bool isRemovedCharacter =
-        oldValue.text.length - 1 == newValue.text.length &&
-            oldValue.text.startsWith(newValue.text);
-    // Apparently, Flutter has a bug where the framework calls
-    // formatEditUpdate twice, or even four times, after a backspace press (see
-    // https://github.com/gtgalone/currency_text_input_formatter/issues/11).
-    // However, only the first of these calls has inputs which are consistent
-    // with a character insertion/removal at the end (which is the most common
-    // use case of editing the TextField - the others being insertion/removal
-    // in the middle, or pasting text onto the TextField). This condition
-    // fixes a problem where a character wasn't properly erased after a
-    // backspace press, when this Flutter bug was present. This comes at the
-    // cost of losing insertion/removal in the middle and pasting text.
-    // if (!isInsertedCharacter && !isRemovedCharacter) {
-    //   return oldValue;
-    // }
+// // _newString = (_isNegative ? '-' : '') + format.format(_newNum).trim();
+// result = format.format(_newNum);
+// result = '\$' + newText;
+// }
 
-    _isNegative = newValue.text.startsWith('-');
-    _hasDecimalValue = newValue.text.contains('.');
-    String newText = newValue.text.replaceAll(RegExp('[^0-9]'), '');
+//FORMATTER WITHOUT DECIMALS
 
-    // If the user wants to remove a digit, but the last character of the
-    // formatted text is not a digit (for example, "1,00 €"), we need to remove
-    // the digit manually
-    if (isRemovedCharacter && !_lastCharacterIsDigit(oldValue.text)) {
-      final int length = newText.length - 1;
-      newText = newText.substring(0, length > 0 ? length : 0);
-    }
-
-    _formatter(newText);
-
-    if (newText.trim() == '' || newText == '00' || newText == '000') {
-      return TextEditingValue(
-        text: _isNegative ? '-' : '',
-        selection: TextSelection.collapsed(offset: _isNegative ? 1 : 0),
-      );
-    }
-
-    return TextEditingValue(
-      text: _newString,
-      selection: TextSelection.collapsed(offset: _newString.length),
-    );
-  }
-
-  static bool _lastCharacterIsDigit(String text) {
-    final String lastChar = text.substring(text.length - 1);
-    return RegExp('[0-9]').hasMatch(lastChar);
-  }
-}
+// //Referred the currency_text_input_formatter package - https://github.com/gtgalone/currency_text_input_formatter
 
 // class IndianCurrencyFormatter extends TextInputFormatter {
-//   IndianCurrencyFormatter({
-//     // this.locale,
-//     // this.name,
-//     // this.symbol,
-//     this.decimalDigits,
-//     this.customPattern,
-//     // this.turnOffGrouping = false,
-//   });
-
-//   // final String? locale;
-//   // final String? name;
-//   // final String? symbol;
-//   final int? decimalDigits;
-//   final String? customPattern;
-//   // final bool turnOffGrouping;100
-
 //   num _newNum = 0;
 //   String _newString = '';
 //   bool _isNegative = false;
+//   // bool _hasDecimalValue = false;
 
 //   void _formatter(String newText) {
 //     final NumberFormat format = NumberFormat.currency(
 //       locale: 'en_IN',
 //       name: 'INR',
 //       symbol: '₹',
-//       decimalDigits: decimalDigits,
-//       customPattern: customPattern,
+//       // decimalDigits: _hasDecimalValue ? 2 : 0,
+//       decimalDigits: 0,
 //     );
-//     // if (turnOffGrouping) {
-//     //   format.turnOffGrouping();
-//     // }
 
 //     _newNum = num.tryParse(newText) ?? 0;
-//     if (format.decimalDigits! > 0) {
-//       _newNum /= pow(10, format.decimalDigits!);
-//     }
-//     _newString = (_isNegative ? '-' : '') + format.format(_newNum).trim();
+
+//     // _newString = (_isNegative ? '-' : '') + format.format(_newNum).trim();
+//     _newString = format.format(_newNum).trim();
 //   }
 
 //   @override
 //   TextEditingValue formatEditUpdate(
-//     TextEditingValue oldValue,
-//     TextEditingValue newValue,
-//   ) {
+//       TextEditingValue oldValue, TextEditingValue newValue) {
 //     // final bool isInsertedCharacter =
 //     //     oldValue.text.length + 1 == newValue.text.length &&
 //     //         newValue.text.startsWith(oldValue.text);
 //     final bool isRemovedCharacter =
 //         oldValue.text.length - 1 == newValue.text.length &&
 //             oldValue.text.startsWith(newValue.text);
-//     // Apparently, Flutter has a bug where the framework calls
-//     // formatEditUpdate twice, or even four times, after a backspace press (see
-//     // https://github.com/gtgalone/currency_text_input_formatter/issues/11).
-//     // However, only the first of these calls has inputs which are consistent
-//     // with a character insertion/removal at the end (which is the most common
-//     // use case of editing the TextField - the others being insertion/removal
-//     // in the middle, or pasting text onto the TextField). This condition
-//     // fixes a problem where a character wasn't properly erased after a
-//     // backspace press, when this Flutter bug was present. This comes at the
-//     // cost of losing insertion/removal in the middle and pasting text.
-//     // if (!isInsertedCharacter && !isRemovedCharacter) {
-//     //   return oldValue;
-//     // }
 
-//     _isNegative = newValue.text.startsWith('-');
+//     // _isNegative = newValue.text.startsWith('-');
+//     // _hasDecimalValue = newValue.text.contains('.');
 //     String newText = newValue.text.replaceAll(RegExp('[^0-9]'), '');
+//     print(newText);
 
-//     // If the user wants to remove a digit, but the last character of the
-//     // formatted text is not a digit (for example, "1,00 €"), we need to remove
-//     // the digit manua
 //     if (isRemovedCharacter && !_lastCharacterIsDigit(oldValue.text)) {
 //       final int length = newText.length - 1;
 //       newText = newText.substring(0, length > 0 ? length : 0);
@@ -176,23 +94,45 @@ class IndianCurrencyFormatter extends TextInputFormatter {
 //     final String lastChar = text.substring(text.length - 1);
 //     return RegExp('[0-9]').hasMatch(lastChar);
 //   }
-
-//   /// Get String type value with format such as `$ 2,000.00`
-//   String getFormattedValue() {
-//     return _newString;
-//   }
-
-//   /// Get num type value without format such as `2000.00`
-//   num getUnformattedValue() {
-//     return _isNegative ? (_newNum * -1) : _newNum;
-//   }
-
-//   /// Method for formatting value.
-//   /// You can use initialValue with this method.
-//   String format(String value) {
-//     _isNegative = value.startsWith('-');
-//     final String newText = value.replaceAll(RegExp('[^0-9]'), '');
-//     _formatter(newText);
-//     return _newString;
-//   }
 // }
+
+//COMBINING DECIMAL VALUE AND FORMATTER ATTEMPT - FAILED
+
+class IndianCurrencyFormatter extends TextInputFormatter {
+  num _newNum = 0;
+  String result = '';
+
+  void _formatter(String newText) {
+    final NumberFormat format = NumberFormat(
+      "##,##,###.##",
+      "en_IN",
+    );
+
+    _newNum = num.tryParse(newText) ?? 0;
+    result = format.format(_newNum);
+
+    // return result = '\$' + newText;
+  }
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final regEx = RegExp(r'^\d*\.?\d*');
+    final String? newString = regEx.stringMatch(newValue.text);
+    print(newString);
+    print(newValue.text);
+
+    _formatter(newString!);
+    // String resultString = _formatter(newString);
+    // TextEditingValue result = ('\$' + newValue);
+
+    // return newString == newValue.text ? newValue : oldValue;
+
+    // return newValue;
+
+    return TextEditingValue(
+      text: result,
+      selection: TextSelection.collapsed(offset: result.length),
+    );
+  }
+}
